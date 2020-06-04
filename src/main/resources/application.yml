@@ -1,0 +1,17 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  mvc:
+    view:
+      prefix: /jsp/
+      suffix: .jsp
+server:
+  port: 8888
+
+  #允许热部署jsp
+  servlet:
+    jsp:
+      init-parameters:
+        development: true
+
+
