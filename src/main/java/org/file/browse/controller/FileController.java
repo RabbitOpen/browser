@@ -75,7 +75,7 @@ public class FileController {
      * @date 2020/6/4
      **/
     @RequestMapping("/portal")
-    public String portal(HttpServletRequest request, @RequestParam(name = "path", required = false)String path) {
+    public String portal(HttpServletRequest request, @RequestParam(name = "path", required = false) String path) {
         request.setAttribute("path", null == path ? "/" : path);
         return "portal";
     }
