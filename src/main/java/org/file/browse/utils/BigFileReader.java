@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +91,7 @@ public class BigFileReader {
 				return null;
 			}
 		} else {
+			releaseMappedByteBufferResources();
 			buffer = null;
 			return readLine();
 		}
@@ -116,7 +120,25 @@ public class BigFileReader {
 	 * @throws IOException
 	 */
 	public void close() throws IOException {
+		releaseMappedByteBufferResources();
 		raf.close();
+	}
+
+	protected void releaseMappedByteBufferResources() {
+		AccessController.doPrivileged(new PrivilegedAction<String>() {
+			@SuppressWarnings("restriction")
+			public String run() {
+				try {
+					Method getCleanerMethod = buffer.getClass().getMethod("cleaner");
+					getCleanerMethod.setAccessible(true);
+					sun.misc.Cleaner cleaner = (sun.misc.Cleaner) getCleanerMethod.invoke(buffer);
+					cleaner.clean();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}
+		});
 	}
 	
 	protected void readBytes(int len) {
