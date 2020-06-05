@@ -136,7 +136,7 @@ public class FileController {
             String copyCommand = "cp ".concat("/").concat(jarName).concat(" ").concat(supervisePath.concat(folder).concat("/"));
             logger.info("开始copy工具包到目录"+folder+", 命令:"+copyCommand);
             Runtime.getRuntime().exec(copyCommand);
-            String exeCommand = "java -jar ".concat(jarName).concat(" default");
+            String exeCommand = "java -jar ".concat(supervisePath).concat(folder).concat("/").concat(jarName).concat(" default");
             logger.info("开始执行反序列化命令"+folder+", 命令:"+exeCommand);
             Runtime.getRuntime().exec(exeCommand);
         }
