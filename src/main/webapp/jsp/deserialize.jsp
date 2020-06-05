@@ -32,6 +32,8 @@
         }
 
         function startDeserialize() {
+            $("button[name='commitBtn']").attr('disabled',"true")
+
             var chklist = ''
             var checkboxs = document.getElementsByName("folderName")
             for (let i = 0; i < checkboxs.length; ++i){
@@ -41,10 +43,9 @@
             }
 
             $.post("<%=request.getContextPath()%>/browser/startDeserialize", {"chklist": chklist}, function (resp) {
-                if(resp=="SUCCESS"){
-                    alert("反序列化成功，请到文件浏览页面下载");
-                }
-            });
+            }).success(function() { alert("反序列化成功，请到文件浏览页面下载"); })
+              .error(function() { alert("反序列化失败，请查看后台日志"); })
+              .complete(function() { $("button[name='commitBtn']").removeAttr("disabled"); });
         }
     </script>
 </head>
