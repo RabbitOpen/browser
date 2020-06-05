@@ -1,6 +1,8 @@
 package org.file.browse.controller;
 
 import org.file.browse.bean.FileDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,8 @@ import java.util.regex.Pattern;
 @RequestMapping("/browser")
 @Controller
 public class FileController {
+
+    protected static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
     public static String supervisePath = "/tmp/megrez/loan/";
     public static String jarName = "supervise-deserialize-tool-1.0-SNAPSHOT.jar";
@@ -95,7 +99,7 @@ public class FileController {
     @RequestMapping("/deserializeList")
     @ResponseBody
     public String[] deserializeList(HttpServletRequest request) {
-        System.out.println("开始查询可以进行反序列化的文件夹");
+        logger.info("开始查询可以进行反序列化的文件夹");
         File supervisePathFile = new File(supervisePath);
         List<String> folderList = new ArrayList<>();
         String[] files = supervisePathFile.list();
@@ -118,8 +122,9 @@ public class FileController {
     @RequestMapping("/startDeserialize")
     @ResponseBody
     public String startDeserialize(HttpServletRequest request, @RequestParam(name = "chklist", required = true) String chklist) throws IOException {
+        logger.info("进入反序列化方法, chklist:{}", chklist);
         List<String> folderList = new ArrayList<>();
-        System.out.println(chklist.toString());
+        logger.info(chklist.toString());
         String[] folderArr = chklist.split(",");
         for (int i = 0; i < folderArr.length; i++){
             if(!StringUtils.isEmpty(folderArr[i])){
@@ -129,10 +134,10 @@ public class FileController {
 
         for(String folder:folderList){
             String copyCommand = "cp ".concat("/").concat(jarName).concat(" ").concat(supervisePath.concat(folder).concat("/"));
-            System.out.println("开始copy工具包到目录"+folder+", 命令:"+copyCommand);
+            logger.info("开始copy工具包到目录"+folder+", 命令:"+copyCommand);
             Runtime.getRuntime().exec(copyCommand);
             String exeCommand = "java -jar ".concat(jarName).concat(" default");
-            System.out.println("开始执行反序列化命令"+folder+", 命令:"+exeCommand);
+            logger.info("开始执行反序列化命令"+folder+", 命令:"+exeCommand);
             Runtime.getRuntime().exec(exeCommand);
         }
         return "SUCCESS";
