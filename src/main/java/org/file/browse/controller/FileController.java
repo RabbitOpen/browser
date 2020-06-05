@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * @author xiaoqianbin
@@ -21,6 +23,10 @@ import java.util.List;
 @RequestMapping("/browser")
 @Controller
 public class FileController {
+
+    public static String supervisePath = "/tmp/megrez/loan/";
+    public static String jarName = "supervise-deserialize-tool-1.0-SNAPSHOT.jar";
+    Pattern pattern = Pattern.compile("^[\\d]*$");
 
     @ResponseBody
     @RequestMapping("/browse")
@@ -80,4 +86,55 @@ public class FileController {
         return "portal";
     }
 
+    @RequestMapping("/deserialize")
+    public String deserialize(HttpServletRequest request, @RequestParam(name = "path", required = false) String path) {
+        request.setAttribute("path", null == path ? "/" : path);
+        return "deserialize";
+    }
+
+    @RequestMapping("/deserializeList")
+    @ResponseBody
+    public String[] deserializeList(HttpServletRequest request) {
+        System.out.println("开始查询可以进行反序列化的文件夹");
+        File supervisePathFile = new File(supervisePath);
+        List<String> folderList = new ArrayList<>();
+        String[] files = supervisePathFile.list();
+        for(int i = 0; i < files.length; i++){
+            if(pattern.matcher(files[i]).matches()){
+                folderList.add(files[i]);
+            }
+        }
+
+        String[] rtnArr = null;
+        if(folderList.size()>0){
+            rtnArr = new String[folderList.size()];
+            for (int i = 0; i < folderList.size(); i++){
+                rtnArr[i] = folderList.get(i);
+            }
+        }
+        return rtnArr;
+    }
+
+    @RequestMapping("/startDeserialize")
+    @ResponseBody
+    public String startDeserialize(HttpServletRequest request, @RequestParam(name = "chklist", required = true) String chklist) throws IOException {
+        List<String> folderList = new ArrayList<>();
+        System.out.println(chklist.toString());
+        String[] folderArr = chklist.split(",");
+        for (int i = 0; i < folderArr.length; i++){
+            if(!StringUtils.isEmpty(folderArr[i])){
+                folderList.add(folderArr[i]);
+            }
+        }
+
+        for(String folder:folderList){
+            String copyCommand = "cp ".concat("/").concat(jarName).concat(" ").concat(supervisePath.concat(folder).concat("/"));
+            System.out.println("开始copy工具包到目录"+folder+", 命令:"+copyCommand);
+            Runtime.getRuntime().exec(copyCommand);
+            String exeCommand = "java -jar ".concat(jarName).concat(" default");
+            System.out.println("开始执行反序列化命令"+folder+", 命令:"+exeCommand);
+            Runtime.getRuntime().exec(exeCommand);
+        }
+        return "SUCCESS";
+    }
 }
