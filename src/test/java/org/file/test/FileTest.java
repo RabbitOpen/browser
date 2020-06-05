@@ -11,6 +11,8 @@ import org.file.browse.utils.BigFileReader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import junit.framework.TestCase;
 
@@ -21,6 +23,8 @@ import junit.framework.TestCase;
 @RunWith(JUnit4.class)
 public class FileTest {
 
+	private Logger logger = LoggerFactory.getLogger(getClass());
+	
     @Test
     public void readTest() throws IOException, InterruptedException {
         String fileName = "d:\\a.txt";
@@ -45,7 +49,7 @@ public class FileTest {
         TestCase.assertEquals(lineCount, count);
         System.gc();
         Thread.sleep(3000);
-        System.out.println(new File(fileName).delete());
+        logger.info("{}", new File(fileName).delete());
     }
     
     /**
@@ -56,6 +60,7 @@ public class FileTest {
     @Test
     public void bigFileRead() throws IOException {
     	String fileName = "d:\\b.txt";
+    	long start = System.currentTimeMillis();
     	BigFileReader reader = new BigFileReader(fileName);
     	long count = 0;
     	String line = null;
@@ -67,9 +72,9 @@ public class FileTest {
     		line = s;
     		count++;
     	}
+    	logger.info("size: {}, cost: {}", count, System.currentTimeMillis() - start);
+    	logger.info("line length: {}", line.length());
     	reader.close();
-    	System.out.println("count: " + count);
-    	System.out.println(line.length());
     }
     
     /**
@@ -80,6 +85,7 @@ public class FileTest {
     @Test
     public void bufferTest() throws IOException {
     	String fileName = "d:\\b.txt";
+    	long start = System.currentTimeMillis();
     	BufferedReader buffer = new BufferedReader(new FileReader(new File(fileName)));
     	long count = 0;
     	while (true) {
@@ -89,8 +95,8 @@ public class FileTest {
     		}
     		count++;
     	}
+    	logger.info("size: {}, cost: {}", count, System.currentTimeMillis() - start);
     	buffer.close();
-    	System.out.println("size: " + count);
     }
    
     

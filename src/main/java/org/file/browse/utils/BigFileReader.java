@@ -7,12 +7,17 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 大文件读取工具
  * @author xiaoqianbin
  * @date 2020/6/4
  **/
 public class BigFileReader {
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
     private String fileName;
 
@@ -44,7 +49,7 @@ public class BigFileReader {
         File file = new File(fileName);
         fileSize = file.length();
         this.fileName = fileName;
-        raf = new RandomAccessFile(this.fileName, "rw");
+        raf = new RandomAccessFile(this.fileName, "r");
     }
 
     public boolean hasMore() {
@@ -77,15 +82,12 @@ public class BigFileReader {
 				readBytes(len);
 				cursor = buffer.limit();
 				globalCursor += cursor;
-				buffer.clear();
 				return new String(dist, 0, len);
 			} else {
 				globalCursor += cursor;
-				buffer.clear();
 				return null;
 			}
 		} else {
-			buffer.clear();
 			buffer = null;
 			return readLine();
 		}
@@ -93,17 +95,17 @@ public class BigFileReader {
 
 	protected void initMapBuffer() throws IOException {
 		if (null == buffer) {
-			// 剩余未读文件大小
 			globalCursor += cursor;
+			// 剩余未读文件大小
 			long left = fileSize - globalCursor;
 			// 本次映射大小
 			currentStepSize = left > stepSize ? stepSize : left;
 			currentOffset = globalCursor;
 			cursor = 0;
 			try {
-				buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, globalCursor, currentStepSize);
+				buffer = raf.getChannel().map(FileChannel.MapMode.READ_ONLY, globalCursor, currentStepSize);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -114,9 +116,6 @@ public class BigFileReader {
 	 * @throws IOException
 	 */
 	public void close() throws IOException {
-		if (null != buffer) {
-			buffer.clear();
-		}
 		raf.close();
 	}
 	
