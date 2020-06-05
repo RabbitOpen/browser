@@ -21,8 +21,6 @@ public class BigFileReader {
 
     private long fileSize = 0L;
 
-    private StringBuilder lineBuffer = new StringBuilder();
-
     // 单次读取的步长
     private long stepSize = 10L * 1024 * 1024;
 
@@ -45,32 +43,34 @@ public class BigFileReader {
         List<String> list = new ArrayList<>();
         File file = new File(fileName);
         long length = (fileSize - cursor) > stepSize ? stepSize : (fileSize - cursor);
-        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+        RandomAccessFile raf = new RandomAccessFile(file, "r");
         // 如果只需要一行一行的读取，利用raf.readLine()比较简单
         MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_ONLY, cursor, length);
-        long index = 0;
         for (int i = 0; i < length; i++) {
             if (buffer.get(i) == 13) {
                 // \r
+                byte[] dist = new byte[i - buffer.position()];
+                if (dist.length > 0) {
+                    buffer.get(dist);
+                    list.add(new String(dist));
+                }
+                buffer.position(i);
                 continue;
             }
             if (buffer.get(i) == 10) {
                 // \n
-                list.add(lineBuffer.toString());
-                lineBuffer.delete(0, lineBuffer.length());
-            } else {
-                lineBuffer.append((char) buffer.get(i));
+                buffer.getChar();
             }
         }
-        if (length < stepSize) {
-            if (0 != lineBuffer.length()) {
-                list.add(lineBuffer.toString());
-                lineBuffer.delete(0, lineBuffer.length());
+        if (cursor + length == fileSize) {
+            // 这是最后一页
+            byte[] dist = new byte[buffer.limit() - buffer.position()];
+            if (dist.length > 0) {
+                buffer.get(dist);
+                list.add(new String(dist));
             }
-            cursor = fileSize;
-        } else {
-            cursor += length;
         }
+        cursor += buffer.position();
         buffer.clear();
         raf.close();
         return list;
