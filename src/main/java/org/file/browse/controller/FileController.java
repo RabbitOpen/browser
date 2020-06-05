@@ -121,7 +121,7 @@ public class FileController {
 
     @RequestMapping("/startDeserialize")
     @ResponseBody
-    public String startDeserialize(HttpServletRequest request, @RequestParam(name = "chklist", required = true) String chklist) throws IOException {
+    public String startDeserialize(HttpServletRequest request, @RequestParam(name = "chklist", required = true) String chklist) throws IOException, InterruptedException {
         logger.info("进入反序列化方法, chklist:{}", chklist);
         List<String> folderList = new ArrayList<>();
         logger.info(chklist.toString());
@@ -133,12 +133,19 @@ public class FileController {
         }
 
         for(String folder:folderList){
-            String copyCommand = "cp ".concat("/").concat(jarName).concat(" ").concat(supervisePath.concat(folder).concat("/"));
-            logger.info("开始copy工具包到目录"+folder+", 命令:"+copyCommand);
-            Runtime.getRuntime().exec(copyCommand);
-            String exeCommand = "java -jar ".concat(supervisePath).concat(folder).concat("/").concat(jarName).concat(" default");
-            logger.info("开始执行反序列化命令"+folder+", 命令:"+exeCommand);
-            Runtime.getRuntime().exec(exeCommand);
+            String shellPath = this.getClass().getClassLoader().getResource("deserialize.sh").getPath();
+            String permissionCommand = "chmod 777 ".concat(shellPath);
+            logger.info("shell赋权命令：{}", permissionCommand);
+            Process ps1 = Runtime.getRuntime().exec(permissionCommand);
+            int exitValue1 = ps1.waitFor();
+            logger.info("脚本赋权执行结果为:{}", exitValue1);
+
+            String deserializePath = supervisePath.concat(folder);
+            String command = shellPath.concat(" ").concat(jarName).concat(" ").concat(deserializePath);
+            logger.info("开始执行反序列化脚本"+folder+", 命令:"+command);
+            Process ps2 = Runtime.getRuntime().exec(command);
+            int exitValue2 = ps2.waitFor();
+            logger.info("反序列化执行结果为:{}", exitValue2);
         }
         return "SUCCESS";
     }
