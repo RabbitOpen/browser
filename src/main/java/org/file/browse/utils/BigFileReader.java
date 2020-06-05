@@ -36,14 +36,18 @@ public class BigFileReader {
         return cursor != fileSize;
     }
 
+    /**
+     * 根据设置的步长读取一定大小的文件内容到内存中
+     * @author  xiaoqianbin
+     * @date    2020/6/5
+     **/
     public List<String> readLines() throws IOException {
         List<String> list = new ArrayList<>();
         File file = new File(fileName);
         long length = (fileSize - cursor) > stepSize ? stepSize : (fileSize - cursor);
         RandomAccessFile raf = new RandomAccessFile(file, "rw");
         // 如果只需要一行一行的读取，利用raf.readLine()比较简单
-        MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_ONLY,
-                cursor, length);
+        MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_ONLY, cursor, length);
         long index = 0;
         for (int i = 0; i < length; i++) {
             if (buffer.get(i) == 13) {
@@ -77,15 +81,9 @@ public class BigFileReader {
     }
 
     public void setStepSize(long stepSize) {
-        this.stepSize = stepSize;
-    }
-
-    public static void main(String[] args) throws IOException {
-        BigFileReader reader = new BigFileReader("d:\\a.txt");
-        reader.setStepSize(30);
-        while (reader.hasMore()) {
-            List<String> list = reader.readLines();
-            System.out.println(list);
+        if (stepSize > 0) {
+            this.stepSize = stepSize;
         }
     }
+
 }
