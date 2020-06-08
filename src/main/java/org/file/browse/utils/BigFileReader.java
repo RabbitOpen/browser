@@ -25,7 +25,7 @@ public class BigFileReader {
     private String fileName;
 
     // 全局游标
-    private int globalCursor = 0;
+    private long globalCursor = 0;
     
     // 局部游标
     private int cursor = 0;
