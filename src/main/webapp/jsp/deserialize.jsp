@@ -27,7 +27,7 @@
                     $("div").append("<p><input type='checkbox' name='folderName' value='" + resp[i] + "' />" + resp[i] +"</p>");
                 }
                 $("div").append("<button type='button' name='commitBtn' onclick='startDeserialize()'>开始反序列化</button>");
-                $("div").append("<p><a href='<%=request.getContextPath()%>/browser/portal'>跳转到文件下载页</p>");
+                $("div").append("<p><a href='<%=request.getContextPath()%>/browser/portal?path=/tmp/megrez/loan/'>跳转到文件下载页</p>");
             });
         }
 
