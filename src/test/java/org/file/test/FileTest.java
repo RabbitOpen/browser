@@ -1,12 +1,6 @@
 package org.file.test;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
+import junit.framework.TestCase;
 import org.file.browse.utils.BigFileReader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +8,7 @@ import org.junit.runners.JUnit4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import junit.framework.TestCase;
+import java.io.*;
 
 /**
  * @author xiaoqianbin

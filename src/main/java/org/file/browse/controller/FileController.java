@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -65,7 +64,7 @@ public class FileController {
         response.setHeader("Content-Disposition", "attachment;filename="
                 + file.substring(file.lastIndexOf("/") + 1));
         //4.转化为输入流
-        InputStream is = new FileInputStream(file);
+        BufferedInputStream is = new BufferedInputStream(new FileInputStream(new File(file)), 8 * 1024 * 1024);
         //5.创建输出流
         OutputStream os = response.getOutputStream();
         //6.读写数据

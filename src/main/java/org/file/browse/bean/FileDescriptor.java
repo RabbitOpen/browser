@@ -1,10 +1,7 @@
 package org.file.browse.bean;
 
-import org.springframework.util.StringUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -51,6 +48,9 @@ public class FileDescriptor {
     }
 
     public FileDescriptor(String fileName, String path) throws IOException {
+        if (!path.endsWith("/")) {
+            path = path + "/";
+        }
         BasicFileAttributeView basicview= Files.getFileAttributeView(Paths.get(path + fileName), BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS );
         BasicFileAttributes attr = basicview.readAttributes();
         created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(attr.creationTime().toMillis()));
