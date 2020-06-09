@@ -90,8 +90,7 @@ public class FileController {
     }
 
     @RequestMapping("/deserialize")
-    public String deserialize(HttpServletRequest request, @RequestParam(name = "path", required = false) String path) {
-        request.setAttribute("path", null == path ? "/" : path);
+    public String deserialize(HttpServletRequest request) {
         return "deserialize";
     }
 
