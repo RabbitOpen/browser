@@ -139,12 +139,18 @@ public class FileController {
             int exitValue1 = ps1.waitFor();
             logger.info("脚本赋权执行结果为:{}", exitValue1);
 
+            String replaceCommand = "dos2unix ".concat(shellPath);
+            logger.info("shell替换windows特殊字符命令：{}", replaceCommand);
+            Process ps2 = Runtime.getRuntime().exec(permissionCommand);
+            int exitValue2 = ps2.waitFor();
+            logger.info("替换特殊字符执行结果为:{}", exitValue2);
+
             String deserializePath = supervisePath.concat(folder);
             String command = shellPath.concat(" ").concat(jarName).concat(" ").concat(deserializePath);
             logger.info("开始执行反序列化脚本"+folder+", 命令:"+command);
-            Process ps2 = Runtime.getRuntime().exec(command);
-            int exitValue2 = ps2.waitFor();
-            logger.info("反序列化执行结果为:{}", exitValue2);
+            Process ps3 = Runtime.getRuntime().exec(command);
+            int exitValue3 = ps3.waitFor();
+            logger.info("反序列化执行结果为:{}", exitValue3);
         }
         return "SUCCESS";
     }
