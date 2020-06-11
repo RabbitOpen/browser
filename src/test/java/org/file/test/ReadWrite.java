@@ -1,5 +1,8 @@
 package org.file.test;
 
+import com.jd.fastjson.JSONObject;
+import com.jdd.fintech.megrez.loan.core.common.submit.ReportObjectReader;
+import com.jdd.fintech.megrez.loan.core.common.submit.model.credit.UserAccountInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -7,11 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.lang.reflect.Method;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author xiaoqianbin
@@ -23,64 +24,35 @@ public class ReadWrite {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Test
-    public void bufferedInputStreamRead() throws IOException {
-        String fileName = "d:\\b.txt";
-        long start = System.currentTimeMillis();
-        int size = 16 * 1024 * 1024;
-        BufferedInputStream in = new BufferedInputStream(new FileInputStream(new File(fileName)), size);
-        byte[] b = new byte[size];
-        int len = 0;
-        FileOutputStream fos = new FileOutputStream("d:\\out.txt");
-        while (-1 != (len = in.read(b))) {
-            fos.write(b, 0, len);
-            fos.flush();
+    public void analyseFiles() throws IOException, InstantiationException, IllegalAccessException {
+        String dir = "C:\\Users\\xiaoqianbin\\Downloads";
+        String[] files = new File(dir).list();
+        for (String file : files) {
+            BufferedReader reader = new BufferedReader(new FileReader(new File(dir + "/" + file)));
+            String line = reader.readLine();
+            System.out.println(line);
+            if (file.startsWith("JD_Net_AccountInfo")) {
+                Object o = ReportObjectReader.parseStrToObj(UserAccountInfo.class, line);
+                logger.info(JSONObject.toJSONString(o));
+            }
+            reader.close();
         }
-        logger.info("write over! cost: {}", System.currentTimeMillis() - start);
-        in.close();
-        fos.close();;
 
     }
 
     @Test
-    public void mappedBufferRead() throws IOException {
-        String fileName = "d:\\b.txt";
-        long start = System.currentTimeMillis();
-        RandomAccessFile raf = new RandomAccessFile(fileName, "r");
-        int size = 4 * 1024 * 1024;
-        long cursor = 0;
-        long step = size;
-        FileOutputStream fos = new FileOutputStream("d:\\out.txt");
-        byte[] b = new byte[size];
-        while (step == size) {
-            long left = new File(fileName).length() - cursor;
-            step = left > size ? size : left;
-            MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_ONLY, cursor, step);
-            cursor += step;
-            buffer.get(b, 0, buffer.limit());
-            fos.write(b, 0, buffer.limit());
-            releaseMappedByteBufferResources(buffer);
-        }
-        logger.info("write over! cost: {}", System.currentTimeMillis() - start);
-        raf.close();
-        fos.close();;
-
-    }
-
-    protected void releaseMappedByteBufferResources(MappedByteBuffer buffer) {
-        AccessController.doPrivileged(new PrivilegedAction<String>() {
-            @SuppressWarnings("restriction")
-            public String run() {
-                try {
-                    Method getCleanerMethod = buffer.getClass().getMethod("cleaner");
-                    getCleanerMethod.setAccessible(true);
-                    sun.misc.Cleaner cleaner = (sun.misc.Cleaner) getCleanerMethod.invoke(buffer);
-                    cleaner.clean();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
+    public void cal() {
+        int n = 8;
+        List<Integer> arr = new ArrayList<>();
+        int[] sub = new int[]{ n + 1, n - 1, 2 * n + 1, 2 * n - 1, 3 * n + 1, 3 * n - 1, 4 * n + 1, 5 * n - 1, 30};
+        for (int j : sub) {
+            arr.clear();
+            for (int i = 0; i < j; i++) {
+                arr.add(i, (n * i + 1) % j);
             }
-        });
+            arr.sort((o1, o2) -> o1 - o2);
+            System.out.println(j + ": " + arr);
+        }
     }
 
 }

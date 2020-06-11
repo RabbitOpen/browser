@@ -40,6 +40,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>com.jdd.fintech.megrez.loan</groupId>
+            <artifactId>megrez-framework-utils</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jdd.fintech.megrez.loan.core</groupId>
+            <artifactId>lskj-megrez-loan-core-api</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
